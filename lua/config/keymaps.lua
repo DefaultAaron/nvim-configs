@@ -34,12 +34,40 @@ vim.keymap.set("v", "J", ":m '>+1<CR>gv=gv")
 vim.keymap.set("v", "K", ":m '<-2<CR>gv=gv")
 
 -- Open terminal
-vim.api.nvim_create_user_command("TermBottom", function(ops)
+vim.api.nvim_create_user_command("TermBottom", function()
+  local term_buf = nil
+  local term_win = nil
+
+  -- Look for an existing terminal buffer
+  for _, buf in ipairs(vim.api.nvim_list_bufs()) do
+    if vim.bo[buf].buftype == "terminal" then
+      term_buf = buf
+      -- Check if it's visible in any window
+      for _, win in ipairs(vim.api.nvim_list_wins()) do
+        if vim.api.nvim_win_get_buf(win) == buf then
+          term_win = win
+          break
+        end
+      end
+      break
+    end
+  end
+
+  -- If terminal is visible, focus it
+  if term_win then
+    vim.api.nvim_set_current_win(term_win)
+  -- If terminal buffer exists but hidden, open it in a split
+  elseif term_buf then
+    vim.cmd("botright 10split")
+    vim.api.nvim_set_current_buf(term_buf)
+  -- Otherwise, open a new terminal
+  else
     vim.cmd("botright 10split")
     vim.cmd("terminal")
-    vim.cmd("startinsert")
-end, { nargs = 0})
+  end
 
+  vim.cmd("startinsert")
+end, { nargs = 0, desc = "Smart open/reuse terminal at bottom" })
 vim.keymap.set("n", "<leader>t", ":TermBottom<CR>")
 
 -- Git push in terminal
