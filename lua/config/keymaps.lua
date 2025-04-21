@@ -69,9 +69,7 @@ vim.api.nvim_create_user_command("GitPush", function()
   end
 end, {})
 
--- Set git key maps
-vim.keymap.set("n", "<leader>ga", ":!git add .<CR>", { desc = "Git add all" })
-vim.keymap.set("n", "<leader>gc", function()
+vim.api.nvim_create_user_command("GitCommit", function()
   vim.ui.input({ prompt = "Commit message: " }, function(input)
     if not input or input == "" then
       print("❌ Aborted: No commit message.")
@@ -79,7 +77,32 @@ vim.keymap.set("n", "<leader>gc", function()
     end
 
     local msg = input:gsub('"', '\\"')
-    vim.cmd("!git commit -m \"" .. msg .. "\"")
+
+    -- Try to find an existing terminal buffer
+    local term_buf = nil
+    for _, buf in ipairs(vim.api.nvim_list_bufs()) do
+        if vim.api.nvim_buf_is_loaded(buf) and vim.api.nvim_buf_get_option(buf, "buftype") == "terminal" then
+            term_buf = buf
+            break
+      end
+    end
+
+    -- If no terminal found, open a new one using TermBottom
+    if not term_buf then
+      vim.cmd("TermBottom")
+      term_buf = vim.api.nvim_get_current_buf()
+    end
+
+    -- Get terminal job ID
+    local job_id = vim.b[term_buf].terminal_job_id
+    if job_id then
+      vim.fn.chansend(job_id, "git add . && git commit -m \"" .. msg .. "\"\n")
+    else
+      print("❌ Could not get terminal job ID.")
+    end
   end)
-end, { desc = "Git commit" })
+end, { desc = "Add all and commit with a message" })
+
+-- Set git key maps
+vim.keymap.set("n", "<leader>gc", ":GitCommit<CR>", { desc = "Git push" })
 vim.keymap.set("n", "<leader>gp", ":GitPush<CR>", { desc = "Git push" })
