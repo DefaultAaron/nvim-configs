@@ -90,6 +90,7 @@ vim.api.nvim_create_user_command("GitCommit", function()
 
     if job_id then
       vim.fn.chansend(job_id, "git add . && git commit -m \"" .. msg .. "\"\n")
+      vim.cmd("Neotree action=refresh")
     else
       print("❌ Could not get terminal job ID.")
     end
@@ -103,6 +104,7 @@ vim.api.nvim_create_user_command("GitPush", function()
 
   if job_id then
     vim.fn.chansend(job_id, "git push\n")
+    vim.cmd("Neotree action=refresh")
   else
     print("❌ Could not get terminal job ID.")
   end
