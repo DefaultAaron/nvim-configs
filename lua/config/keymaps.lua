@@ -33,6 +33,7 @@ vim.keymap.set("n", "<C-k>", "<C-w><C-k>", { desc = "Move focus to the upper win
 vim.keymap.set("v", "J", ":m '>+1<CR>gv=gv")
 vim.keymap.set("v", "K", ":m '<-2<CR>gv=gv")
 
+-- Display the terminal if exists else create
 local function get_or_create_terminal()
   local term_buf = nil
   local term_win = nil
@@ -70,10 +71,12 @@ local function get_or_create_terminal()
   return term_buf
 end
 
+-- Key map to get or create terminal
 vim.keymap.set("n", "<leader>t", function()
   get_or_create_terminal()
 end, { desc = "Open or reuse terminal at bottom" })
 
+-- Command to stage and commit the changes
 vim.api.nvim_create_user_command("GitCommit", function()
   vim.ui.input({ prompt = "Commit message: " }, function(input)
     if not input or input == "" then
@@ -93,6 +96,7 @@ vim.api.nvim_create_user_command("GitCommit", function()
   end)
 end, { desc = "Add all and commit with a message" })
 
+-- Command to push changes
 vim.api.nvim_create_user_command("GitPush", function()
   local term_buf = get_or_create_terminal()
   local job_id = vim.b[term_buf].terminal_job_id
