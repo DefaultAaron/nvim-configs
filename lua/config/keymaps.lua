@@ -8,7 +8,13 @@ vim.keymap.set("n", "<leader>pv", vim.cmd.Ex)
 -- Use `jk` to quit current mode
 vim.keymap.set("i", "jk", "<ESC>")
 vim.keymap.set("v", "jk", "<ESC>")
-vim.keymap.set("t", "jk", "<C-\\><C-n>", { desc = "Exit terminal mode" })
+vim.keymap.set("t", "jk", function()
+  -- Exit terminal mode
+  vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("<C-\\><C-n>", true, false, true), "n", false)
+  
+  -- Close the terminal window
+  vim.cmd("q")  -- Use :q to quit the terminal buffer
+end, { desc = "Exit terminal mode and close window" })
 
 -- Set `<space>nh` to remove the highlight in normal mode
 vim.keymap.set("n", "<leader>nh", ":nohl<CR>", { desc = "Remove Highlight" })
