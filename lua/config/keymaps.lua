@@ -35,4 +35,10 @@ vim.keymap.set("n", "<leader>ga", ":!git add .<CR>", { desc = "Git add all" })
 vim.keymap.set("n", "<leader>gp", ":!git push<CR>", { desc = "Git push" })
 
 -- Open terminal
-vim.keymap.set("n", "<leader>t", ":10split | terminal<CR>")
+vim.api.nvim_create_user_command("TermBottom", function(ops)
+    vim.cmd("botright 10split")
+    vim.cmd("terminal")
+    vim.cmd("startinsert")
+end, { nargs = 0})
+
+vim.keymap.set("n", "<leader>t", ":TermBottom<CR>")

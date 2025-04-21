@@ -4,7 +4,8 @@ return {
     config = function()
         require("lualine").setup {
             options = {
-                theme = "tokyonight"
+                theme = "tokyonight",
+                globalstatus = true
             }
         }
     end
