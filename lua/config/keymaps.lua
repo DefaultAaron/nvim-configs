@@ -33,16 +33,15 @@ vim.keymap.set("n", "<C-k>", "<C-w><C-k>", { desc = "Move focus to the upper win
 vim.keymap.set("v", "J", ":m '>+1<CR>gv=gv")
 vim.keymap.set("v", "K", ":m '<-2<CR>gv=gv")
 
--- Open terminal
-vim.api.nvim_create_user_command("TermBottom", function()
+local function get_or_create_terminal()
   local term_buf = nil
   local term_win = nil
 
-  -- Look for an existing terminal buffer
+  -- Look for any existing terminal buffer
   for _, buf in ipairs(vim.api.nvim_list_bufs()) do
-    if vim.bo[buf].buftype == "terminal" then
+    if vim.api.nvim_buf_is_valid(buf) and vim.bo[buf].buftype == "terminal" then
       term_buf = buf
-      -- Check if it's visible in any window
+      -- Check if it's visible in a window
       for _, win in ipairs(vim.api.nvim_list_wins()) do
         if vim.api.nvim_win_get_buf(win) == buf then
           term_win = win
@@ -53,49 +52,27 @@ vim.api.nvim_create_user_command("TermBottom", function()
     end
   end
 
-  -- If terminal is visible, focus it
+  -- Terminal exists and is visible
   if term_win then
     vim.api.nvim_set_current_win(term_win)
-  -- If terminal buffer exists but hidden, open it in a split
+  -- Terminal exists but hidden
   elseif term_buf then
     vim.cmd("botright 10split")
     vim.api.nvim_set_current_buf(term_buf)
-  -- Otherwise, open a new terminal
+  -- No terminal at all — create new
   else
     vim.cmd("botright 10split")
     vim.cmd("terminal")
-  end
-
-  vim.cmd("startinsert")
-end, { nargs = 0, desc = "Smart open/reuse terminal at bottom" })
-vim.keymap.set("n", "<leader>t", ":TermBottom<CR>")
-
--- Git push in terminal
-vim.api.nvim_create_user_command("GitPush", function()
-  local term_buf = nil
-
-  -- Look for an existing terminal buffer
-  for _, buf in ipairs(vim.api.nvim_list_bufs()) do
-    if vim.api.nvim_buf_is_loaded(buf) and vim.api.nvim_buf_get_option(buf, "buftype") == "terminal" then
-      term_buf = buf
-      break
-    end
-  end
-
-  -- If no terminal found, open one via TermBottom
-  if not term_buf then
-    vim.cmd("TermBottom")
     term_buf = vim.api.nvim_get_current_buf()
   end
 
-  -- Get terminal job ID
-  local job_id = vim.b[term_buf].terminal_job_id
-  if job_id then
-    vim.fn.chansend(job_id, "git push\n")
-  else
-    print("❌ Could not get terminal job ID.")
-  end
-end, {})
+  vim.cmd("startinsert")
+  return term_buf
+end
+
+vim.keymap.set("n", "<leader>t", function()
+  get_or_create_terminal()
+end, { desc = "Open or reuse terminal at bottom" })
 
 vim.api.nvim_create_user_command("GitCommit", function()
   vim.ui.input({ prompt = "Commit message: " }, function(input)
@@ -105,24 +82,9 @@ vim.api.nvim_create_user_command("GitCommit", function()
     end
 
     local msg = input:gsub('"', '\\"')
-
-    -- Try to find an existing terminal buffer
-    local term_buf = nil
-    for _, buf in ipairs(vim.api.nvim_list_bufs()) do
-        if vim.api.nvim_buf_is_loaded(buf) and vim.api.nvim_buf_get_option(buf, "buftype") == "terminal" then
-            term_buf = buf
-            break
-      end
-    end
-
-    -- If no terminal found, open a new one using TermBottom
-    if not term_buf then
-      vim.cmd("TermBottom")
-      term_buf = vim.api.nvim_get_current_buf()
-    end
-
-    -- Get terminal job ID
+    local term_buf = get_or_create_terminal()
     local job_id = vim.b[term_buf].terminal_job_id
+
     if job_id then
       vim.fn.chansend(job_id, "git add . && git commit -m \"" .. msg .. "\"\n")
     else
@@ -130,6 +92,17 @@ vim.api.nvim_create_user_command("GitCommit", function()
     end
   end)
 end, { desc = "Add all and commit with a message" })
+
+vim.api.nvim_create_user_command("GitPush", function()
+  local term_buf = get_or_create_terminal()
+  local job_id = vim.b[term_buf].terminal_job_id
+
+  if job_id then
+    vim.fn.chansend(job_id, "git push\n")
+  else
+    print("❌ Could not get terminal job ID.")
+  end
+end, { desc = "Push using git in terminal" })
 
 -- Set git key maps
 vim.keymap.set("n", "<leader>gc", ":GitCommit<CR>", { desc = "Git push" })
