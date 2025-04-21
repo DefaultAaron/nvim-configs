@@ -66,25 +66,8 @@ vim.api.nvim_create_user_command("GitPush", function()
   end
 end, {})
 
-vim.api.nvim_create_user_command("GitCommit", function()
-  vim.ui.input({ prompt = "Commit message: " }, function(input)
-    if not input or input == "" then
-      print("❌ Aborted: No commit message.")
-      return
-    end
-
-    -- Escape double quotes in commit message
-    local msg = input:gsub('"', '\\"')
-
-    -- Run git add and commit using shell
-    vim.cmd("!git add .")
-    vim.cmd("!git commit -m \"" .. msg .. "\"")
-  end)
-end, {})
-
 -- Set git key maps
 vim.keymap.set("n", "<leader>ga", ":!git add .<CR>", { desc = "Git add all" })
-vim.keymap.set("n", "<leader>gp", ":GitPush<CR>", { desc = "Git push" })
 vim.keymap.set("n", "<leader>gc", function()
   vim.ui.input({ prompt = "Commit message: " }, function(input)
     if not input or input == "" then
@@ -93,7 +76,7 @@ vim.keymap.set("n", "<leader>gc", function()
     end
 
     local msg = input:gsub('"', '\\"')
-    vim.cmd("!git add .")
     vim.cmd("!git commit -m \"" .. msg .. "\"")
   end)
 end, { desc = "Git commit" })
+vim.keymap.set("n", "<leader>gp", ":GitPush<CR>", { desc = "Git push" })
