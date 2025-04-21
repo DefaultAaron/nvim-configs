@@ -85,3 +85,15 @@ end, {})
 -- Set git key maps
 vim.keymap.set("n", "<leader>ga", ":!git add .<CR>", { desc = "Git add all" })
 vim.keymap.set("n", "<leader>gp", ":GitPush<CR>", { desc = "Git push" })
+vim.keymap.set("n", "<leader>gc", function()
+  vim.ui.input({ prompt = "Commit message: " }, function(input)
+    if not input or input == "" then
+      print("❌ Aborted: No commit message.")
+      return
+    end
+
+    local msg = input:gsub('"', '\\"')
+    vim.cmd("!git add .")
+    vim.cmd("!git commit -m \"" .. msg .. "\"")
+  end)
+end, { desc = "Git commit" })
