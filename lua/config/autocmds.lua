@@ -24,8 +24,9 @@ vim.api.nvim_create_autocmd("TermOpen", {
     desc = "Close sign column for terminal",
     group = vim.api.nvim_create_augroup("terminal-options", { clear = true }),
     callback = function()
-        vim.opt_local.signcolumn = "no"
+        vim.opt_local.wrap = false
         vim.opt_local.number = false
         vim.opt_local.relativenumber = false
+        vim.opt_local.signcolumn = "no"
     end,
 })

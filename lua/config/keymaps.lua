@@ -32,7 +32,7 @@ vim.keymap.set("v", "K", ":m '<-2<CR>gv=gv")
 
 -- Set git key maps
 vim.keymap.set("n", "<leader>ga", ":!git add .<CR>", { desc = "Git add all" })
-vim.keymap.set("n", "<leader>gp", ":!git push<CR>", { desc = "Git push" })
+vim.keymap.set("n", "<leader>gp", ":terminal git push<CR>", { desc = "Git push" })
 
 -- Open terminal
 vim.api.nvim_create_user_command("TermBottom", function(ops)
