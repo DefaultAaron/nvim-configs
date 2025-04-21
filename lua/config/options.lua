@@ -19,7 +19,7 @@ vim.opt.mouse = "a"
 vim.opt.cursorline = true
 
 -- Hide the mode
--- vim.opt.showmode = false
+vim.opt.showmode = false
 
 -- Sync clipboard
 --  Schedule the setting after `UiEnter` because it can increase startup-time.

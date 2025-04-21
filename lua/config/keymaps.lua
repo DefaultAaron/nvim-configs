@@ -33,3 +33,6 @@ vim.keymap.set("v", "K", ":m '<-2<CR>gv=gv")
 -- Set git key maps
 vim.keymap.set("n", "<leader>ga", ":!git add .<CR>", { desc = "Git add all" })
 vim.keymap.set("n", "<leader>gp", ":!git push<CR>", { desc = "Git push" })
+
+-- Open terminal
+vim.keymap.set("n", "<leader>t", ":10split | terminal<CR>")

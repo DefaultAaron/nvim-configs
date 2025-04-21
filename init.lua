@@ -7,3 +7,5 @@ require("config.keymaps")
 -- Setup auto commands
 require("config.autocmds")
 
+-- Setup lazy
+require("config.lazy")
