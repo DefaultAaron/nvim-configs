@@ -143,3 +143,4 @@ end, { desc = "Push using git in terminal" })
 -- Set git key maps
 vim.keymap.set("n", "<leader>gc", ":GitCommit<CR>", { desc = "Git push" })
 vim.keymap.set("n", "<leader>gp", ":GitPush<CR>", { desc = "Git push" })
+
