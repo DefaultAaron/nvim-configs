@@ -101,7 +101,6 @@ local function refresh_neotree_git_status_after_delay(term_buf, delay)
       timer:stop()
       timer:close()
       require("neo-tree.sources.git_status").refresh()
-      require("neo-tree.sources.filesystem").refresh()
     end
   end))
 end
@@ -143,4 +142,3 @@ end, { desc = "Push using git in terminal" })
 -- Set git key maps
 vim.keymap.set("n", "<leader>gc", ":GitCommit<CR>", { desc = "Git push" })
 vim.keymap.set("n", "<leader>gp", ":GitPush<CR>", { desc = "Git push" })
-
