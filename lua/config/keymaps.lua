@@ -76,6 +76,36 @@ vim.keymap.set("n", "<leader>t", function()
   get_or_create_terminal()
 end, { desc = "Open or reuse terminal at bottom" })
 
+local function refresh_neotree_git_status_after_delay(term_buf, delay)
+  local function is_git_done()
+    local lines = vim.api.nvim_buf_get_lines(term_buf, -10, -1, false)
+    for _, line in ipairs(lines) do
+      if line:match("everything up%-to%-date")
+          or line:match("files? changed")
+          or line:match("Successfully pushed")
+          or line:match("done")
+          or line:match("Create pull request")
+          or line:match("^%[main ")
+          or line:match("^%[") then
+        return true
+      end
+    end
+    return false
+  end
+
+  local timer = vim.loop.new_timer()
+  local attempts = 0
+  timer:start(delay, 300, vim.schedule_wrap(function()
+    attempts = attempts + 1
+    if is_git_done() or attempts > 7 then -- Max ~2.1s
+      timer:stop()
+      timer:close()
+      require("neo-tree.sources.git_status").refresh()
+      require("neo-tree.sources.filesystem").refresh()
+    end
+  end))
+end
+
 -- Command to stage and commit the changes
 vim.api.nvim_create_user_command("GitCommit", function()
   vim.ui.input({ prompt = "Commit message: " }, function(input)
@@ -90,7 +120,7 @@ vim.api.nvim_create_user_command("GitCommit", function()
 
     if job_id then
       vim.fn.chansend(job_id, "git add . && git commit -m \"" .. msg .. "\"\n")
-      vim.cmd("Neotree action=refresh")
+      refresh_neotree_git_status_after_delay(term_buf, 300)
     else
       print("❌ Could not get terminal job ID.")
     end
@@ -104,7 +134,7 @@ vim.api.nvim_create_user_command("GitPush", function()
 
   if job_id then
     vim.fn.chansend(job_id, "git push\n")
-    vim.cmd("Neotree action=refresh")
+    refresh_neotree_git_status_after_delay(term_buf, 300)
   else
     print("❌ Could not get terminal job ID.")
   end
