@@ -80,13 +80,13 @@ local function refresh_neotree_git_status_after_delay(term_buf, delay)
   local function is_git_done()
     local lines = vim.api.nvim_buf_get_lines(term_buf, -10, -1, false)
     for _, line in ipairs(lines) do
-      if line:match("everything up%-to%-date")
-          or line:match("files? changed")
-          or line:match("Successfully pushed")
-          or line:match("done")
-          or line:match("Create pull request")
-          or line:match("^%[main ")
-          or line:match("^%[") then
+      if line:match("^%[.+%]")
+        or line:match("%d+ file[s]? changed")
+        or line:match("insertion")
+        or line:match("deletion")
+        or line:match("create mode")
+        or line:match("delete mode")
+        or line:match("rename ") then
         return true
       end
     end
@@ -133,7 +133,6 @@ vim.api.nvim_create_user_command("GitPush", function()
 
   if job_id then
     vim.fn.chansend(job_id, "git push\n")
-    refresh_neotree_git_status_after_delay(term_buf, 300)
   else
     print("❌ Could not get terminal job ID.")
   end
