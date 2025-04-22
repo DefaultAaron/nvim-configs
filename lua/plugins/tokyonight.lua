@@ -6,7 +6,8 @@ return {
         require("tokyonight").setup {
             styles = {
                 -- Disable italics in comments
-                comments = { italic = false }
+                comments = { italic = false },
+                keywords = { italic = false }
             }
         }
         vim.cmd[[colorscheme tokyonight-night]]
