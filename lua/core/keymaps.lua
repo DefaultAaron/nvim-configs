@@ -7,7 +7,6 @@ vim.keymap.set("v", "J", ":m '>+1<CR>gv=gv")
 vim.keymap.set("v", "K", ":m '<-2<CR>gv=gv")
 
 keymap.set("i", "jk", "<ESC>", { desc = "Exit insert mode with jk" })
-keymap.set("v", "jk", "<ESC>", { desc = "Exit visual mode with jk" })
 keymap.set("t", "jk", function()
 	vim.cmd("stopinsert")
 	vim.cmd("q!")
